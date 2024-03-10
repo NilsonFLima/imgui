@@ -3833,56 +3833,58 @@ void ImGui::GcAwakeTransientWindowBuffers(ImGuiWindow* window)
 
 void ImGui::SetActiveID(ImGuiID id, ImGuiWindow* window)
 {
-    ImGuiContext& g = *GImGui;
-
-
-    for (int i = 0; i < DC.Layouts.Data.Size; i++)
+    if (window)
     {
-        ImGuiLayout* layout = (ImGuiLayout*)DC.Layouts.Data[i].val_p;
-        IM_DELETE(layout);
-    }
-    // While most behaved code would make an effort to not steal active id during window move/drag operations,
-    // we at least need to be resilient to it. Cancelling the move is rather aggressive and users of 'master' branch
-    // may prefer the weird ill-defined half working situation ('docking' did assert), so may need to rework that.
-    if (g.MovingWindow != NULL && g.ActiveId == g.MovingWindow->MoveId)
-    {
-        IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() cancel MovingWindow\n");
-        g.MovingWindow = NULL;
-    }
+        ImGuiContext& g = *GImGui;
 
-    // Set active id
-    g.ActiveIdIsJustActivated = (g.ActiveId != id);
-    if (g.ActiveIdIsJustActivated)
-    {
-        IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() old:0x%08X (window \"%s\") -> new:0x%08X (window \"%s\")\n", g.ActiveId, g.ActiveIdWindow ? g.ActiveIdWindow->Name : "", id, window ? window->Name : "");
-        g.ActiveIdTimer = 0.0f;
-        g.ActiveIdHasBeenPressedBefore = false;
-        g.ActiveIdHasBeenEditedBefore = false;
-        g.ActiveIdMouseButton = -1;
-        if (id != 0)
+        for (int i = 0; i < window->DC.Layouts.Data.Size; i++)
         {
-            g.LastActiveId = id;
-            g.LastActiveIdTimer = 0.0f;
+            ImGuiLayout* layout = (ImGuiLayout*)window->DC.Layouts.Data[i].val_p;
+            IM_DELETE(layout);
         }
-    }
-    g.ActiveId = id;
-    g.ActiveIdAllowOverlap = false;
-    g.ActiveIdNoClearOnFocusLoss = false;
-    g.ActiveIdWindow = window;
-    g.ActiveIdHasBeenEditedThisFrame = false;
-    if (id)
-    {
-        g.ActiveIdIsAlive = id;
-        g.ActiveIdSource = (g.NavActivateId == id || g.NavActivateInputId == id || g.NavJustMovedToId == id) ? (ImGuiInputSource)ImGuiInputSource_Nav : ImGuiInputSource_Mouse;
-    }
+        // While most behaved code would make an effort to not steal active id during window move/drag operations,
+        // we at least need to be resilient to it. Cancelling the move is rather aggressive and users of 'master' branch
+        // may prefer the weird ill-defined half working situation ('docking' did assert), so may need to rework that.
+        if (g.MovingWindow != NULL && g.ActiveId == g.MovingWindow->MoveId)
+        {
+            IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() cancel MovingWindow\n");
+            g.MovingWindow = NULL;
+        }
 
-    // Clear declaration of inputs claimed by the widget
-    // (Please note that this is WIP and not all keys/inputs are thoroughly declared by all widgets yet)
-    g.ActiveIdUsingNavDirMask = 0x00;
-    g.ActiveIdUsingAllKeyboardKeys = false;
+        // Set active id
+        g.ActiveIdIsJustActivated = (g.ActiveId != id);
+        if (g.ActiveIdIsJustActivated)
+        {
+            IMGUI_DEBUG_LOG_ACTIVEID("SetActiveID() old:0x%08X (window \"%s\") -> new:0x%08X (window \"%s\")\n", g.ActiveId, g.ActiveIdWindow ? g.ActiveIdWindow->Name : "", id, window ? window->Name : "");
+            g.ActiveIdTimer = 0.0f;
+            g.ActiveIdHasBeenPressedBefore = false;
+            g.ActiveIdHasBeenEditedBefore = false;
+            g.ActiveIdMouseButton = -1;
+            if (id != 0)
+            {
+                g.LastActiveId = id;
+                g.LastActiveIdTimer = 0.0f;
+            }
+        }
+        g.ActiveId = id;
+        g.ActiveIdAllowOverlap = false;
+        g.ActiveIdNoClearOnFocusLoss = false;
+        g.ActiveIdWindow = window;
+        g.ActiveIdHasBeenEditedThisFrame = false;
+        if (id)
+        {
+            g.ActiveIdIsAlive = id;
+            g.ActiveIdSource = (g.NavActivateId == id || g.NavActivateInputId == id || g.NavJustMovedToId == id) ? (ImGuiInputSource)ImGuiInputSource_Nav : ImGuiInputSource_Mouse;
+        }
+
+        // Clear declaration of inputs claimed by the widget
+        // (Please note that this is WIP and not all keys/inputs are thoroughly declared by all widgets yet)
+        g.ActiveIdUsingNavDirMask = 0x00;
+        g.ActiveIdUsingAllKeyboardKeys = false;
 #ifndef IMGUI_DISABLE_OBSOLETE_KEYIO
-    g.ActiveIdUsingNavInputMask = 0x00;
+        g.ActiveIdUsingNavInputMask = 0x00;
 #endif
+    }
 }
 
 void ImGui::ClearActiveID()
