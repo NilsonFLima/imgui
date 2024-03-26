@@ -840,7 +840,7 @@ static void ImGui_ImplGlfw_InitPlatformInterface()
     platform_io.Platform_CreateVkSurface = ImGui_ImplGlfw_CreateVkSurface;
 #endif
 #if HAS_WIN32_IME
-    // platform_io.Platform_SetImeInputPos = ImGui_ImplWin32_SetImeInputPos; // TODO: check why there is no implementation for SetImeInputPos
+    platform_io.Platform_SetImeInputPos = ImGui_ImplWin32_SetImeInputPos;
 #endif
 
     // Register main window handle (which is owned by the main application, not by us)
